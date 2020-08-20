@@ -2,6 +2,7 @@
 import requests
 import json
 import subprocess
+import argparse
 
 class AutoProxy():
 
@@ -28,41 +29,60 @@ class AutoProxy():
         return parsedJson["proxy"]["hostname"]
 
     def proxyStatus(self, leastCurrentConnections, currentProxy):
+        print("\n[+] Current Proxy:    {}".format(currentProxy))
+        print("[+] Suggested Proxy:  {}".format(leastCurrentConnections))
+
         if (currentProxy != leastCurrentConnections):
-
-            print("Current Proxy:    {}".format(currentProxy))
-            print("Suggested Proxy:  {}".format(leastCurrentConnections))
-
             return 1
 
     def alterConfig(self, leastCurrentConnections, currentProxy):
 
+        print("[+] Finding Proxy Data", sep=' ', end='                        \r', flush=True)
         with open('core.conf', 'r') as configFileRead:
             configData = configFileRead.read()
             configOverwriteData = (configData.replace(currentProxy, leastCurrentConnections))
 
+        print("[+] Replacing Proxy Data", sep=' ', end='                        \r', flush=True)
         with open('core.conf', 'w') as configFileWrite:
             configFileWrite.write(configOverwriteData)
 
     def leastCurrentConnections(self, serverRecomendations):
-        print(json.dumps(serverRecomendations,indent=2))
+        print("\n"+json.dumps(serverRecomendations,indent=2))
 
         return str(list(serverRecomendations.keys())[0])
 
     def dockerInit(self, status):
         if status == 0:
+            print("[+] Stopping Docker", sep=' ', end='                        \r', flush=True)
             subprocess.run(["docker", "stop", "deluge"])
         if status == 1:
+            print("[+] Starting Docker", sep=' ', end='                        \r', flush=True)
             subprocess.run(["docker", "start", "deluge"])
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Automaticly switch proxy servers.')
+    parser.add_argument("--vs",'--verify-state', choices=[str(0),str(1)], default=str(0), help="Does not alter core.conf file, or restart docker.")
+    args = parser.parse_args()
+
+    if int(args.vs) == 0:
+        print("\n[+] Persistent Mode")
+
+    else:
+        print("\n[+] Verify Mode")
+
     start = AutoProxy(["United States"])
     serverRecomendations = start.serverRecomendations()
     currentProxy = start.currentProxy()
     leastCurrentConnections = start.leastCurrentConnections(serverRecomendations)
     proxyStatus = start.proxyStatus(leastCurrentConnections, currentProxy)
 
-    if proxyStatus:
-        start.dockerInit(self, 0)
-        start.alterConfig(leastCurrentConnections, currentProxy)
-        start.dockerInit(self, 1)
+    if int(args.vs) == 0:
+        if proxyStatus:
+            start.dockerInit(0)
+            start.alterConfig(leastCurrentConnections, currentProxy)
+            start.dockerInit(1)
+            print("",end='                        ')
+            print("\n[+] Finished Task")
+        else:
+            print("\n[-] No Alteration Required", sep=' ', end='                        ', flush=True)
