@@ -36,7 +36,6 @@ class AutoProxy():
             return 1
 
     def alterConfig(self, leastCurrentConnections, currentProxy):
-
         print("[+] Finding Proxy Data", sep=' ', end='                        \r', flush=True)
         with open('core.conf', 'r') as configFileRead:
             configData = configFileRead.read()
@@ -60,7 +59,6 @@ class AutoProxy():
             subprocess.run(["docker", "start", "deluge"])
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description='Automaticly switch proxy servers.')
     parser.add_argument("--vs",'--verify-state', choices=[str(0),str(1)], default=str(0), help="Does not alter core.conf file, or restart docker.")
     args = parser.parse_args()
