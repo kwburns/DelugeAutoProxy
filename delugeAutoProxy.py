@@ -60,7 +60,7 @@ class AutoProxy():
             subprocess.run(["docker", "start", "deluge"])
 
     def logStatus(self, leastCurrentConnections, currentProxy, status):
-        if status:
+        if int(status) == 1:
             logFile = open("delugeAutoProxy.log", "a+")
             execTime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
             logFile.write("[+] Switched from {} to {} @ {}\n".format(leastCurrentConnections, currentProxy, execTime))
@@ -93,9 +93,9 @@ if __name__ == "__main__":
             start.dockerInit(0)
             start.alterConfig(leastCurrentConnections, currentProxy)
             start.dockerInit(1)
-            start.logStatus(currentProxy, leastCurrentConnections,True)
+            start.logStatus(currentProxy, leastCurrentConnections, 1)
             print("",end='                        ')
             print("\n[+] Finished Task")
         else:
             print("\n[-] No Alteration Required", sep=' ', end='                        ', flush=True)
-            start.logStatus(currentProxy, leastCurrentConnections, False)
+            start.logStatus(currentProxy, leastCurrentConnections, 0)
