@@ -3,6 +3,7 @@ import requests
 import json
 import subprocess
 import argparse
+from time import gmtime, strftime
 
 class AutoProxy():
 
@@ -58,6 +59,18 @@ class AutoProxy():
             print("[+] Starting Docker", sep=' ', end='                        \r', flush=True)
             subprocess.run(["docker", "start", "deluge"])
 
+    def logStatus(self, leastCurrentConnections, currentProxy, status):
+        if status:
+            logFile = open("delugeAutoProxy.log", "a+")
+            execTime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+            logFile.write("[+] Switched from {} to {} @ {}\n".format(leastCurrentConnections, currentProxy, execTime))
+        else:
+            logFile = open("delugeAutoProxy.log", "a+")
+            execTime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+            logFile.write("[+] Proxy Suggestions are the same; {}, {} Exiting @ {}\n".format(leastCurrentConnections, currentProxy, execTime))
+
+        print("[+] Writing to delugeAutoProxy.log")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Automaticly switch proxy servers.')
     parser.add_argument("--vs",'--verify-state', choices=[str(0),str(1)], default=str(0), help="Does not alter core.conf file, or restart docker.")
@@ -80,7 +93,9 @@ if __name__ == "__main__":
             start.dockerInit(0)
             start.alterConfig(leastCurrentConnections, currentProxy)
             start.dockerInit(1)
+            start.logStatus(currentProxy, leastCurrentConnections,True)
             print("",end='                        ')
             print("\n[+] Finished Task")
         else:
             print("\n[-] No Alteration Required", sep=' ', end='                        ', flush=True)
+            start.logStatus(currentProxy, leastCurrentConnections, False)
