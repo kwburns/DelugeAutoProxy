@@ -61,13 +61,13 @@ class AutoProxy():
 
     def logStatus(self, leastCurrentConnections, currentProxy, status):
         if int(status) == 1:
-            logFile = open("delugeAutoProxy.log", "a+")
+            logFile = open("delugeAutoProxy.log", "a+") # Switch
             execTime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-            logFile.write("[+] Switched from {} to {} @ {}\n".format(leastCurrentConnections, currentProxy, execTime))
+            logFile.write("|   SWITCHED   |{:^30}|{:^30}|{:^30}|\n".format(currentProxy, leastCurrentConnections, execTime))
         else:
-            logFile = open("delugeAutoProxy.log", "a+")
+            logFile = open("delugeAutoProxy.log", "a+") # Current is best
             execTime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-            logFile.write("[+] Proxy Suggestions are the same; {}, {} Exiting @ {}\n".format(leastCurrentConnections, currentProxy, execTime))
+            logFile.write("|    STAYED    |{:^30}|{:^30}|{:^30}|\n".format(currentProxy, leastCurrentConnections, execTime))
 
         print("[+] Writing to delugeAutoProxy.log")
 
